@@ -1,7 +1,9 @@
-from bs4 import BeautifulSoup
 import requests
 import sqlite3
+
 from time import sleep
+from bs4 import BeautifulSoup
+
 
 def get_urls(page=1):
     url = "https://www.whitehouse.gov/briefings-statements/page/{}/"
@@ -11,7 +13,7 @@ def get_urls(page=1):
     if briefings.status_code == 404:
         return articles
     
-    soup = BeautifulSoup(briefings.content, "html.parser")
+    soup = BeautifulSoup(briefings.content, "lxml")
     for article in soup.find_all("article"):
         articles.append({
             "title": article.h2.text,
@@ -23,11 +25,11 @@ def get_urls(page=1):
 
 def get_article(url):
     article = requests.get(url)
-    soup = BeautifulSoup(article.content, "html.parser")
+    soup = BeautifulSoup(article.content, "lxml")
     
     text = ""
     for para in soup.find_all("p"):
-        text += "\n" + para.text
+        text += para.text + "\n"
     
     return text
 
