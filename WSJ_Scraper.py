@@ -13,6 +13,9 @@ import time
 from selenium.webdriver.firefox.options import Options
 start_time = time.time()
 
+gecko_path = r'/home/sade/geckodriver'
+#gecko_path = r'/home/garrett/geckodriver/geckodriver'
+
 #%% Functions:
 def WSJ_Scraper(URLs, U_P):
     
@@ -24,7 +27,7 @@ def WSJ_Scraper(URLs, U_P):
     options.headless = True
     driver = webdriver.Firefox(
         options=options, 
-        executable_path=r'/home/garrett/geckodriver/geckodriver'
+        executable_path=gecko_path
     )
     
     #Logging in:
