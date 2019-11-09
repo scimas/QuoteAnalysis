@@ -9,6 +9,8 @@ BBC News Web Scraper
 #%% Packages:
 import requests
 from bs4 import BeautifulSoup
+import time
+start_time = time.time()
 
 #%% Functions:
 def BBC_Scraper(URLs):
@@ -16,17 +18,17 @@ def BBC_Scraper(URLs):
     articles = []
     for u in URLs:
         response = requests.get(u)
-        soup = BeautifulSoup(response.text, features="html.parser")
+        soup = BeautifulSoup(response.text, features="lxml")
         content = soup.find("div", attrs={"class": "story-body__inner"})
         article = ''
         for i in content.findAll('p'):
             article = article + ' ' +  i.text
         articles.append(article)
     
-    return(article)
+    return(articles)
 
 #%% Execution:
 URLs = ['https://www.bbc.com/news/world-asia-india-50258947']
-article = BBC_Scraper(URLs)
-
+articles = BBC_Scraper(URLs)
+print("--- %s seconds ---" % (time.time() - start_time))
  
