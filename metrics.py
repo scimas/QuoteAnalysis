@@ -1,28 +1,48 @@
 import numpy as np
 
-from itertools import combinations
 from numpy.linalg import norm
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 from nltk.tokenize import TreebankWordTokenizer
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.feature_extraction.text import CountVectorizer
 
 tokenizer = TreebankWordTokenizer()
+eng_stopwords = tuple(stopwords.words("english"))
+stemmer = PorterStemmer()
+
+
+def tokenization(sent):
+    """
+    @author: Mihir Gadgil
+    Tokenizer for vectorizing sentences.
+    """
+    # Tokenize sentence
+    tokens = tokenizer.tokenize(sent)
+    # Remove stopwords and stemming
+    processed_tokens = [stemmer.stem(token) for token in tokens if token not in eng_stopwords]
+    return processed_tokens
+
+
+# Text vectorizer for CosineSimilarity
+vectorizer = CountVectorizer(tokenizer=tokenization, binary=True)
+
 
 def JaccardSimilarity(sent1, sent2):
+    """
+    @author: Mihir Gadgil
+    Sentence Jaccard similarity.
+    """
     tokens1 = set(tokenizer.tokenize(sent1))
     tokens2 = set(tokenizer.tokenize(sent2))
 
     return len(tokens1.intersection(tokens2)) / len(tokens1.union(tokens2))
 
+
 def CosineSimilarity(sent1, sent2):
-    enc = OneHotEncoder()
-    tk1 = tokenizer.tokenize(sent1)
-    tk2 = tokenizer.tokenize(sent2)
-    tk1.extend(tk2)
-    all_tokens = list(set(tk1))
-    all_vec = np.array(all_tokens, dtype="object").reshape(-1, 1)
-    svec1 = np.array(tk1, dtype="object").reshape(-1, 1)
-    svec2 = np.array(tk2, dtype="object").reshape(-1, 1)
-    enc.fit(all_vec)
-    wvec1 = enc.transform(svec1).sum(axis=0)
-    wvec2 = enc.transform(svec2).sum(axis=0)
-    return wvec1.dot(wvec2.T)/norm(wvec1)/norm(wvec2)
+    """
+    @author: Mihir Gadgil
+    Sentence cosine similarity.
+    """
+    sents = vectorizer.fit_transform([sent1, sent2]).toarray()
+
+    return np.matmul(sents[0], sents[1].T)/norm(sents[0])/norm(sents[1])
