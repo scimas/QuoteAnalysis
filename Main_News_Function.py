@@ -18,6 +18,7 @@ import scrapers
 import metrics
 import quote_extraction
 from nltk.corpus import stopwords
+import os
 
 
 #%% Functions
@@ -46,11 +47,11 @@ def get_Stories(api_response_json):
 ###############################################################################
 
 def Google_quote(quote) :
-    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag'
+    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf'
     matching_quote_url=[]
     domains=['www.foxnews.com', 'www.cnn.com','www.bbc.com','www.breitbart.com','www.apnews.com','www.washingtonpost.com']
     for domain in domains:
-        for url in search(quote+remove_vids, domains=[domain], tbs="qdr:m", stop=2, pause=6):
+        for url in search(quote+remove_vids, domains=[domain], tbs="qdr:m", stop=2, pause=10):
             matching_quote_url.append(url)
     return matching_quote_url
 
@@ -96,6 +97,19 @@ def text_from_Google_url(Google_urls):
 tokenizer = TreebankWordTokenizer()
 
 
+def write_urls_file(urls):
+    with open("google_urls.txt", "w") as fd:
+        for url in urls:
+            fd.write(url + "\n")
+
+
+def read_urls_file():
+    urls = []
+    with open("google_urls.txt", "r") as fd:
+        urls = fd.readlines()
+    return urls
+
+
 ###############################################################################
 # MAIN Functions
 ###############################################################################
@@ -124,9 +138,14 @@ def main(og_source, topic, start_time,end_time ):
                 quote_len+=1
         if quote_len > 3:
             quotes_list_filiter.append(quotes)
+
     urls=[]
-    for google_quote in quotes_list_filiter[:5]:
-        urls.extend(Google_quote(google_quote))
+    if os.path.exists("google_urls.txt"):
+        urls = read_urls_file()
+    else:
+        for google_quote in quotes_list_filiter[:5]:
+            urls.extend(Google_quote(google_quote))
+        write_urls_file(urls)
 
     dictionary = text_from_Google_url(urls)
 
