@@ -91,7 +91,7 @@ def get_article_cnn(url):
     content = soup.find_all(class_="zn-body__paragraph")
     
     article = ""
-    for para in article:
+    for para in content:
         article += para.text + "\n"
     
     return article
