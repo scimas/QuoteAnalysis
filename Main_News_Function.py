@@ -3,6 +3,7 @@
 
 #%% Packages
 import requests
+import time
 from bs4 import BeautifulSoup
 import urllib
 import numpy as np
@@ -45,14 +46,12 @@ def get_Stories(api_response_json):
 ###############################################################################
 
 def Google_quote(quote) :
-    remove_vids = 'site:www.cnn.com -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag'
+    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag'
     matching_quote_url=[]
-    domains=['www.foxnews.com','www.cnn.com','www.bbc.com','www.breitbart.com','www.apnews.com','www.washingtonpost.com']
+    domains=['www.foxnews.com', 'www.cnn.com','www.bbc.com','www.breitbart.com','www.apnews.com','www.washingtonpost.com']
     for domain in domains:
-        for url in search(quote+remove_vids, domains=domain, tbs="qdr:m" , stop=3):
+        for url in search(quote+remove_vids, domains=[domain], tbs="qdr:m", stop=2, pause=6):
             matching_quote_url.append(url)
-            time.sleep(3)
-        time.sleep(120)
     return matching_quote_url
 
 
@@ -126,8 +125,8 @@ def main(og_source, topic, start_time,end_time ):
         if quote_len > 3:
             quotes_list_filiter.append(quotes)
     urls=[]
-    for google_quote in quotes_list_filiter:
-        urls.append(Google_quote(google_quote))
+    for google_quote in quotes_list_filiter[:5]:
+        urls.extend(Google_quote(google_quote))
 
     dictionary = text_from_Google_url(urls)
 
@@ -136,7 +135,7 @@ def main(og_source, topic, start_time,end_time ):
         quotes=[]
         if (len(dictionary[i])!=0):
             for article in dictionary[i]:
-                quotes.append(find_quotes_in_text(article))
+                quotes.append(quote_extraction.find_quotes_in_text(article))
         dictionary_quotes[i] = quotes
 
     similarity_result={}
@@ -154,12 +153,12 @@ def main(og_source, topic, start_time,end_time ):
 
                     if google_quote_len > 3:
                         if (og_source, source) not in similarity_result.keys():
-                            similarity_result[(og_source, source)] = [JaccardSimilarity(quote, google_quote)]
+                            similarity_result[(og_source, source)] = [metrics.JaccardSimilarity(quote, google_quote)]
                         else:
-                            similarity_result[(og_source, source)].append(JaccardSimilarity(quote, google_quote))
+                            similarity_result[(og_source, source)].append(metrics.JaccardSimilarity(quote, google_quote))
     return similarity_result
 
 
-
-print(main('fox-news','trump AND impeach','2019-10-31','2019-11-02'))
-
+results = main('fox-news','trump AND impeach','2019-10-31','2019-11-02')
+print(results)
+print(results.keys())
