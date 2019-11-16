@@ -8,7 +8,6 @@ from nltk.tokenize import TreebankWordTokenizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.cluster import KMeans
 
-
 tokenizer = TreebankWordTokenizer()
 eng_stopwords = tuple(stopwords.words("english"))
 stemmer = PorterStemmer()
@@ -47,7 +46,7 @@ def CosineSimilarity(sent1, sent2):
     Sentence cosine similarity.
     """
     sents = vectorizer.fit_transform([sent1, sent2]).toarray()
-    return sents[0].dot(sents[1].T)/norm(sents[0])/norm(sents[1])
+    return np.matmul(sents[0], sents[1].T) / (norm(sents[0]) * norm(sents[1]))
 
 
 def KMeans(quote_corpus, clusters=2):
@@ -62,4 +61,3 @@ def KMeans(quote_corpus, clusters=2):
     for i in range(clusters):
         top_ten_words = [terms[ind] for ind in order_centroids[i, :5]]
         print("Cluster {}: {}".format(i, ' '.join(top_ten_words)))
-
