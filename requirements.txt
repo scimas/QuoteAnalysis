@@ -1,0 +1,8 @@
+beautifulsoup4
+matplotlib
+google
+nltk
+numpy
+requests
+scikit-learn
+spacy
