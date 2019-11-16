@@ -5,7 +5,7 @@ from nltk.tokenize import sent_tokenize
 
 def find_quotes_in_text(text):
     """Returns a list of quotes from given text."""
-    quotes_regex = re.compile('(?:\u201c(.*?)\u201d)')
+    quotes_regex = re.compile('(?:[\u201c\"\'](.*?)[\u201d\"\'])')
     quotes = [q for q in quotes_regex.findall(text)]
     return quotes
 
