@@ -33,11 +33,11 @@ def find_sentences_before_after_quotes(quotes, text):
                 before_quote_sent_idx = quote_sentence_index - 1
                 after_quote_sent_idx = quote_sentence_index + 1
                 if before_quote_sent_idx < 0:
-                    before_sent_quote_dict[quote] = "No sentence present before quote"
+                    before_sent_quote_dict[quote] = "No sentence present before quote."
                 else:
                     before_sent_quote_dict[quote] = sentences[before_quote_sent_idx]
                 if after_quote_sent_idx > len(sentences) - 1:
-                    after_sent_quote_dict[quote] = "No sentence present after quote"
+                    after_sent_quote_dict[quote] = "No sentence present after quote."
                 else:
                     after_sent_quote_dict[quote] = sentences[after_quote_sent_idx]
     return before_sent_quote_dict, after_sent_quote_dict
