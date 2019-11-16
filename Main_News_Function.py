@@ -47,7 +47,7 @@ def get_Stories(api_response_json):
 ###############################################################################
 
 def Google_quote(quote) :
-    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf'
+    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf -site:bbc.com/news/live'
     matching_quote_url=[]
     domains=['www.foxnews.com', 'www.cnn.com','www.bbc.com','www.breitbart.com','www.apnews.com','www.washingtonpost.com']
     for domain in domains:
