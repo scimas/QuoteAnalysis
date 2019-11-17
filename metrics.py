@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 from numpy.linalg import norm
@@ -49,15 +50,60 @@ def CosineSimilarity(sent1, sent2):
     return np.matmul(sents[0], sents[1].T) / (norm(sents[0]) * norm(sents[1]))
 
 
-def KMeans(quote_corpus, clusters=2):
-    # Add stemming, tokenizer
-    vectorizer = CountVectorizer(lowercase=True, stop_words=stopwords.words('english'), max_df=0.5, binary=True)
-    X = vectorizer.fit_transform(quote_corpus)
-    kmeans_model = KMeans(n_clusters=clusters)
+class StemmerTokenizer(object):
+    def __init__(self):
+        self.porter_stemmer = PorterStemmer()
+        self.treebank_tokenizer = TreebankWordTokenizer()
 
-    print("Top terms per cluster:")
-    order_centroids = kmeans_model.cluster_centers_.argsort()[:, ::-1]
-    terms = X.get_feature_names()
-    for i in range(clusters):
-        top_ten_words = [terms[ind] for ind in order_centroids[i, :5]]
-        print("Cluster {}: {}".format(i, ' '.join(top_ten_words)))
+    def __call__(self, sentence):
+        return [self.porter_stemmer.stem(token) for token in self.treebank_tokenizer.tokenize(sentence)
+                if token not in eng_stopwords]
+
+
+def KMeansClusteringElbowCurve(quote_dict):
+    """Shows an elbow curve plot to determine the appropriate number of k-means clusters."""
+    count_vectorizer = CountVectorizer(tokenizer=StemmerTokenizer(), lowercase=True,
+                                       stop_words=stopwords.words('english'), binary=True)
+    X = count_vectorizer.fit_transform(quote_dict.values())
+    distorsions = []
+    for k in range(1, 4):
+        kmeans_model = KMeans(n_clusters=k)
+        kmeans_model.fit(X)
+        distorsions.append(kmeans_model.inertia_)
+    fig = plt.figure(figsize=(15, 5))
+    plt.plot(range(1, 4), distorsions)
+    plt.title('Elbow Curve')
+    plt.show()
+
+
+def KMeansClustering(quote_dict, clusters=2):
+    """Returns a pandas data frame containing the quote_dict and cluster label."""
+    count_vectorizer = CountVectorizer(tokenizer=StemmerTokenizer(), lowercase=True)
+    X = count_vectorizer.fit_transform(quote_dict.values()).toarray()
+    kmeans_model = KMeans(n_clusters=clusters).fit(X)
+    y = kmeans_model.predict(X)
+    kmeans_df = pd.DataFrame.from_dict(quote_dict, orient='index', columns=['sentence'])
+    kmeans_df["cluster"] = kmeans_model.labels_
+    return X, y, kmeans_model, kmeans_df
+
+
+def KMeansClusteringPlot(X, y, kmeans_model, quote_dict):
+    """Show clusters with centroids from k-means."""
+    plt.scatter(X[:, 0][0], X[:, 1][0], s=200, color='blue', label=[k for k in quote_dict.keys()][0])
+    plt.scatter(X[:, 0][1], X[:, 1][1], s=200, color='red', label=[k for k in quote_dict.keys()][1])
+    plt.scatter(X[:, 0][2], X[:, 1][2], s=200, color='green', label=[k for k in quote_dict.keys()][2])
+    centers = kmeans_model.cluster_centers_
+    plt.scatter(centers[:, 0], centers[:, 1], c='black', s=100, alpha=0.6)
+    plt.legend()
+    plt.show()
+
+
+quote_dict = {'cnn': 'witch hunt', 'fox': 'donald trump says this is a witch hunt',
+              'bbc': 'donald trump is a crookity crook who should be impeached'}
+
+kmeans_elbow = KMeansClusteringElbowCurve(quote_dict)
+
+X, y, kmeans_model, kmeans_df = KMeansClustering(quote_dict)
+print(kmeans_df)
+
+kmeans_plot = KMeansClusteringPlot(X, y, kmeans_model, quote_dict)
