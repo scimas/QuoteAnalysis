@@ -15,37 +15,60 @@ from googlesearch import search
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, TreebankWordTokenizer
 from numpy.linalg import norm
-from sklearn.preprocessing import OneHotEncoder
 
 
-def news_api(source, qurry, from_,to_):
+def news_api(source, query, from_, to_):
+    """
+    @author: Binbin Wu
+    Query news API to search for a topic in a given time range.
+    Returns the response in json format.
+    """
     url = ('https://newsapi.org/v2/everything?'
        'q={}&'
        'sources={}&'
        'from={}&to={}&'
        'apiKey=52654b37ed4a4570ad8cf1933879fe14')
-    response = requests.get(url.format(qurry,source,from_,to_))
+    response = requests.get(url.format(query, source, from_, to_))
     return response.json()
 
 
 def get_Stories(api_response_json):
+    """
+    @author: Binbin Wu
+    Extract article urls from news API response.
+    Returns a list of URLs.
+    """
     stories_urls = []
     for i in api_response_json['articles']:
         stories_urls.append(i['url'])
     return stories_urls
 
 
-def Google_quote(quote) :
+def Google_quote(quote):
+    """
+    @author: Binbin Wu
+    Search for articles with similar quotes on different news sources using Google search.
+    Returns a list of URLs.
+    """
     remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf -site:bbc.com/news/live'
     matching_quote_url=[]
-    domains=['www.foxnews.com', 'www.cnn.com','www.bbc.com','www.breitbart.com','www.apnews.com','www.washingtonpost.com']
+    domains=[
+        'www.foxnews.com', 'www.cnn.com', 'www.bbc.com',
+        'www.breitbart.com', 'www.apnews.com', 'www.washingtonpost.com'
+    ]
     for domain in domains:
-        for url in search(quote+remove_vids, domains=[domain], tbs="qdr:m", stop=2, pause=10):
+        for url in search(quote + remove_vids, domains=[domain], tbs="qdr:m", stop=2, pause=10):
             matching_quote_url.append(url)
     return matching_quote_url
 
 
 def text_from_Google_url(Google_urls):
+    """
+    @author: Binbin Wu
+    Extract text from news articles.
+    Returns a dictionary of articles for each news source.
+    """
+    # Regex for identifying news source
     fox_url_regex = re.compile('.*www.foxnews.com.*')
     cnn_url_regex = re.compile('.*www.cnn.com.*')
     bbc_url_regex = re.compile('.*www.bbc.com.*')
@@ -61,6 +84,8 @@ def text_from_Google_url(Google_urls):
     ap_article=[]
     
     for url in Google_urls:
+        # If URL is for this news source, use the corresponding scraper
+        # to get the article.
         if fox_url_regex.fullmatch(url):
             fox_article.append(scrapers.get_article_fox(url))
         elif bb_url_regex.fullmatch(url):
@@ -85,45 +110,63 @@ def text_from_Google_url(Google_urls):
 
 
 def write_urls_file(urls):
+    """
+    @author: Binbin Wu, Mihir Gadgil
+    Store URLs obtained from Google search to avoid querying google again
+    """
     with open("google_urls.txt", "w") as fd:
         for url in urls:
             fd.write(url + "\n")
 
 
 def read_urls_file():
+    """
+    @author: Binbin Wu, Mihir Gadgil
+    Read URLs from the stored file.
+    Returns a list of URLs.
+    """
     urls = []
     with open("google_urls.txt", "r") as fd:
         urls = fd.readlines()
     return urls
 
 
-def main(og_source, topic, start_time,end_time ):
+def main(og_source, topic, start_time, end_time):
+    """
+    @author: Binbin Wu
+    Main function that uses all of the functionality to do quote analysis.
+    Returns a dictionary of pairwise similarity scores for news sources.
+    """
     #test=news_api('fox-news','trump AND impeach','2019-10-31','2019-11-02')
-    news= news_api(og_source, topic, start_time, end_time)
-    urls=get_Stories(news)
-    article_list=[]
+    # Get the "original" quotes from one of the news sources (og_source)
+    news = news_api(og_source, topic, start_time, end_time)
+    urls = get_Stories(news)
+    # Extract text from articles
+    article_list = []
     for i in urls:
         article_list.append(scrapers.get_article_fox(i))
 
-    quotes=[]
+    # Extract quotes from articles
+    quotes = []
     for article in article_list:
         quotes.append(quote_extraction.find_quotes_in_text(article))
 
     quotes_list = [y for x in quotes for y in x]
 
-    # filiter quotes_list 3 words withou stop_words
+    # Only use the quotes that have at least 3 non-stopwords
     tokenizer = TreebankWordTokenizer()
-    stop_words= tuple(stopwords.words('english'))
-    quotes_list_filiter=[]
+    stop_words = tuple(stopwords.words('english'))
+    quotes_list_filiter = []
     for quotes in quotes_list:
         quote_len = 0
         for token in tokenizer.tokenize(quotes):
             if token not in stop_words:
-                quote_len+=1
+                quote_len += 1
         if quote_len > 3:
             quotes_list_filiter.append(quotes)
 
-    urls=[]
+    urls = []
+    # If the URLs file exists, use it instead of querying google.
     if os.path.exists("google_urls.txt"):
         urls = read_urls_file()
     else:
@@ -131,25 +174,27 @@ def main(og_source, topic, start_time,end_time ):
             urls.extend(Google_quote(google_quote))
         write_urls_file(urls)
 
+    # Extract the articles' text
     dictionary = text_from_Google_url(urls)
 
+    # Extract the quotes
     dictionary_quotes={}
     for i in dictionary:
         quotes=[]
-        if (len(dictionary[i])!=0):
+        if len(dictionary[i]) != 0:
             for article in dictionary[i]:
                 quotes.append(quote_extraction.find_quotes_in_text(article))
         dictionary_quotes[i] = quotes
 
+    # Compare quotes using similarity metrics
     similarity_result={}
-    sources =['fox','bb','cnn','bbc','wp','ap']
+    sources =['fox', 'bb', 'cnn', 'bbc', 'wp', 'ap']
     for quote in quotes_list:
         for source in sources:
             for dictionary_quotes_clust in dictionary_quotes[source]:
                 # filiter dictionary_quotes. 60% length match without stop_words
-
                 for google_quote in dictionary_quotes_clust:
-                    google_quote_len=0
+                    google_quote_len = 0
                     for google_token in tokenizer.tokenize(google_quote):
                         if google_token not in stop_words:
                             google_quote_len += 1
@@ -162,6 +207,6 @@ def main(og_source, topic, start_time,end_time ):
     return similarity_result
 
 
-results = main('fox-news','trump AND impeach','2019-10-31','2019-11-02')
+results = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
 print(results)
 print(results.keys())
