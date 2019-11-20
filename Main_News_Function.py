@@ -1,31 +1,23 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-#%% Packages
-import requests
-import time
-from bs4 import BeautifulSoup
-import urllib
-import numpy as np
-from numpy.linalg import norm
-from nltk.tokenize import TreebankWordTokenizer
-from sklearn.preprocessing import OneHotEncoder
-import re
-from nltk.tokenize import sent_tokenize
-from googlesearch import search
-import spacy
-import scrapers
-import metrics
-import quote_extraction
-from nltk.corpus import stopwords
 import os
+import re
+import time
+import urllib
+
+import metrics
+import numpy as np
+import quote_extraction
+import requests
+import scrapers
+import spacy
+
+from bs4 import BeautifulSoup
+from googlesearch import search
+from nltk.corpus import stopwords
+from nltk.tokenize import sent_tokenize, TreebankWordTokenizer
+from numpy.linalg import norm
+from sklearn.preprocessing import OneHotEncoder
 
 
-#%% Functions
-
-###############################################################################
-# Scrapers
-###############################################################################
 def news_api(source, qurry, from_,to_):
     url = ('https://newsapi.org/v2/everything?'
        'q={}&'
@@ -42,9 +34,6 @@ def get_Stories(api_response_json):
         stories_urls.append(i['url'])
     return stories_urls
 
-###############################################################################
-# Other Functions
-###############################################################################
 
 def Google_quote(quote) :
     remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf -site:bbc.com/news/live'
@@ -86,15 +75,13 @@ def text_from_Google_url(Google_urls):
             ap_article.append(scrapers.get_article_ap(url))
     
     return {
-            'fox':fox_article,
-            'bb':bb_article,
-            'cnn':cnn_article,
-            'bbc':bbc_article,
-            'wp':wp_article,
-            'ap':ap_article
-            }
-
-tokenizer = TreebankWordTokenizer()
+        'fox':fox_article,
+        'bb':bb_article,
+        'cnn':cnn_article,
+        'bbc':bbc_article,
+        'wp':wp_article,
+        'ap':ap_article
+    }
 
 
 def write_urls_file(urls):
@@ -109,10 +96,6 @@ def read_urls_file():
         urls = fd.readlines()
     return urls
 
-
-###############################################################################
-# MAIN Functions
-###############################################################################
 
 def main(og_source, topic, start_time,end_time ):
     #test=news_api('fox-news','trump AND impeach','2019-10-31','2019-11-02')
@@ -129,6 +112,7 @@ def main(og_source, topic, start_time,end_time ):
     quotes_list = [y for x in quotes for y in x]
 
     # filiter quotes_list 3 words withou stop_words
+    tokenizer = TreebankWordTokenizer()
     stop_words= tuple(stopwords.words('english'))
     quotes_list_filiter=[]
     for quotes in quotes_list:
