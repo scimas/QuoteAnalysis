@@ -3,15 +3,13 @@ import re
 import time
 import urllib
 
-import metrics
 import numpy as np
-import quote_extraction
 import requests
-import scrapers
 import spacy
 
 from bs4 import BeautifulSoup
 from googlesearch import search
+from library import metrics, quote_extraction, scrapers
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, TreebankWordTokenizer
 from numpy.linalg import norm
@@ -114,7 +112,8 @@ def write_urls_file(urls):
     @author: Binbin Wu, Mihir Gadgil
     Store URLs obtained from Google search to avoid querying google again
     """
-    with open("google_urls.txt", "w") as fd:
+    data_dir = os.path.join("data")
+    with open(os.path.join(data_dir, "google_urls.txt"), "w") as fd:
         for url in urls:
             fd.write(url + "\n")
 
@@ -125,8 +124,9 @@ def read_urls_file():
     Read URLs from the stored file.
     Returns a list of URLs.
     """
+    data_dir = os.path.join("data")
     urls = []
-    with open("google_urls.txt", "r") as fd:
+    with open(os.path.join(data_dir, "google_urls.txt"), "r") as fd:
         urls = fd.readlines()
     return urls
 
@@ -167,7 +167,9 @@ def main(og_source, topic, start_time, end_time):
 
     urls = []
     # If the URLs file exists, use it instead of querying google.
-    if os.path.exists("google_urls.txt"):
+    data_dir = os.path.join("data")
+    urls_file = os.path.join(data_dir, "google_urls.txt")
+    if os.path.exists(urls_file):
         urls = read_urls_file()
     else:
         for google_quote in quotes_list_filiter[:5]:
@@ -207,6 +209,7 @@ def main(og_source, topic, start_time, end_time):
     return similarity_result
 
 
-results = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
-print(results)
-print(results.keys())
+if __name__ == "__main__":
+    results = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
+    print(results)
+    print(results.keys())

@@ -1,13 +1,13 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
-from numpy.linalg import norm
+from matplotlib import pyplot as plt
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import TreebankWordTokenizer
-from sklearn.feature_extraction.text import CountVectorizer
+from numpy.linalg import norm
 from sklearn.cluster import KMeans
+from sklearn.feature_extraction.text import CountVectorizer
 
 tokenizer = TreebankWordTokenizer()
 eng_stopwords = tuple(stopwords.words("english"))
@@ -98,12 +98,13 @@ def KMeansClusteringPlot(X, y, kmeans_model, quote_dict):
     plt.show()
 
 
-quote_dict = {'cnn': 'witch hunt', 'fox': 'donald trump says this is a witch hunt',
-              'bbc': 'donald trump is a crookity crook who should be impeached'}
+if __name__ == "__main__":
+    quote_dict = {'cnn': 'witch hunt', 'fox': 'donald trump says this is a witch hunt',
+                'bbc': 'donald trump is a crookity crook who should be impeached'}
 
-kmeans_elbow = KMeansClusteringElbowCurve(quote_dict)
+    kmeans_elbow = KMeansClusteringElbowCurve(quote_dict)
 
-X, y, kmeans_model, kmeans_df = KMeansClustering(quote_dict)
-print(kmeans_df)
+    X, y, kmeans_model, kmeans_df = KMeansClustering(quote_dict)
+    print(kmeans_df)
 
-kmeans_plot = KMeansClusteringPlot(X, y, kmeans_model, quote_dict)
+    kmeans_plot = KMeansClusteringPlot(X, y, kmeans_model, quote_dict)
