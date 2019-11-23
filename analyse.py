@@ -146,15 +146,15 @@ def main(og_source, topic, start_time, end_time):
     # Extract text from articles
     if og_source == 'fox-news':
         scraper = scrapers.get_article_fox
-    elif og_source == 'bb':
+    elif og_source == 'breitbart-news':
         scraper = scrapers.get_article_breitbart
     elif og_source == 'cnn':
         scraper = scrapers.get_article_cnn
-    elif og_source == 'bbc':
+    elif og_source == 'bbc-news':
         scraper = scrapers.get_article_bbc
-    elif og_source == 'wp':
+    elif og_source == 'the-washington-post':
         scraper = scrapers.get_article_wp
-    elif og_source == 'ap':
+    elif og_source == 'associated-press':
         scraper = scrapers.get_article_ap
     else:
         print("Unknown news source")
@@ -216,7 +216,9 @@ def main(og_source, topic, start_time, end_time):
             for google_quote in dictionary_quotes_clust:
                 quote_dictionary[source].append(google_quote)
     
+    cluster_dict = {}
     for quote in quotes_list:
+        cluster_dict[quote] = [[og_source, quote]]
         for source in sources:
             # filter dictionary_quotes to contain at least 3 non-stopwords
             for google_quote in quote_dictionary[source]:
@@ -232,6 +234,8 @@ def main(og_source, topic, start_time, end_time):
                             similarity_result[(og_source, source)] = [sim]
                         else:
                             similarity_result[(og_source, source)].append(sim)
+                    if sim >= 0.7:
+                        cluster_list{quote}.append([source, google_quote])
     return similarity_result
 
 
