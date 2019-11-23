@@ -93,17 +93,17 @@ def KMeansClusteringPlot(X, kmeans_model, kmeans_df):
     fig, ax = plt.subplots()
     for i, news in zip(range(len(X)), kmeans_df['news_source'].tolist()):
         if news == 'fox':
-            ax.plot(X[i, 0], X[i, 1], c='magenta', marker='o', linestyle='', ms=12, label=news)
+            ax.plot(X[i, 0], X[i, 1], c='magenta', marker='o', linestyle='', ms=5, label=news)
         elif news == 'cnn':
-            ax.plot(X[i, 0], X[i, 1], c='cyan', marker='o', linestyle='', ms=12, label=news)
+            ax.plot(X[i, 0], X[i, 1], c='cyan', marker='o', linestyle='', ms=5, label=news)
         elif news == 'bbc':
-            ax.plot(X[i, 0], X[i, 1], c='green', marker='o', linestyle='', ms=12, label=news)
+            ax.plot(X[i, 0], X[i, 1], c='green', marker='o', linestyle='', ms=5, label=news)
         elif news == 'bb':
-            ax.plot(X[i, 0], X[i, 1], c='red', marker='o', linestyle='', ms=12, label=news)
+            ax.plot(X[i, 0], X[i, 1], c='red', marker='o', linestyle='', ms=5, label=news)
         elif news == 'wp':
-            ax.plot(X[i, 0], X[i, 1], c='blue', marker='o', linestyle='', ms=12, label=news)
+            ax.plot(X[i, 0], X[i, 1], c='blue', marker='o', linestyle='', ms=5, label=news)
         else:
-            ax.plot(X[i, 0], X[i, 1], c='orange', marker='o', linestyle='', ms=12, label=news)
+            ax.plot(X[i, 0], X[i, 1], c='orange', marker='o', linestyle='', ms=5, label=news)
     plt.scatter(kmeans_model.cluster_centers_[:, 0], kmeans_model.cluster_centers_[:, 1],
                 c='black', s=100, alpha=0.6)
     magenta_patch = mpatches.Patch(color='magenta', label='fox')
@@ -113,8 +113,7 @@ def KMeansClusteringPlot(X, kmeans_model, kmeans_df):
     blue_patch = mpatches.Patch(color='blue', label='wp')
     orange_patch = mpatches.Patch(color='orange', label='ap')
     black_patch = mpatches.Patch(color='black', label='centroids')
-    plt.legend(handles=[magenta_patch, cyan_patch, red_patch, green_patch,
-                        red_patch, blue_patch, orange_patch, black_patch])
+    plt.legend(handles=[magenta_patch, cyan_patch, green_patch, red_patch, blue_patch, orange_patch, black_patch])
     plt.show()
 
 
