@@ -216,9 +216,7 @@ def main(og_source, topic, start_time, end_time):
             for google_quote in dictionary_quotes_clust:
                 quote_dictionary[source].append(google_quote)
     
-    cluster_dict = {}
     for quote in quotes_list:
-        cluster_dict[quote] = [[og_source, quote]]
         for source in sources:
             # filter dictionary_quotes to contain at least 3 non-stopwords
             for google_quote in quote_dictionary[source]:
@@ -234,12 +232,23 @@ def main(og_source, topic, start_time, end_time):
                             similarity_result[(og_source, source)] = [sim]
                         else:
                             similarity_result[(og_source, source)].append(sim)
-                    if sim >= 0.25:
-                        cluster_dict[quote].append([source, google_quote])
-    return similarity_result, cluster_dict
+    
+    heatmap_dict = {}
+    for i, source1 in enumerate(sources):
+        heatmap_dict[(source1, source1)] = 1
+        for source2 in sources[i+1:]:
+            score = 0
+            for quote1 in quote_dictionary[source1]:
+                for quote2 in quote_dictionary[source2]:
+                    score += metrics.JaccardSimilarity(quote1, quote2)
+            score /= len(quote_dictionary[source1]) + len(quote_dictionary[source2])
+            heatmap_dict[(source1, source2)] = score
+            heatmap_dict[(source2, source1)] = score
+    
+    return similarity_result, heatmap_dict
 
 
 if __name__ == "__main__":
-    sim_results, cluster_dict = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
+    sim_results, heatmap_dict = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
     print(sim_results)
     print(sim_results.keys())
