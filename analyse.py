@@ -235,7 +235,7 @@ def main(og_source, topic, start_time, end_time):
                         else:
                             similarity_result[(og_source, source)].append(sim)
                     if sim >= 0.7:
-                        cluster_list{quote}.append([source, google_quote])
+                        cluster_dict[quote].append([source, google_quote])
     return similarity_result
 
 
