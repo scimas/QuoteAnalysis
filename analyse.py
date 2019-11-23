@@ -48,11 +48,11 @@ def Google_quote(quote):
     Search for articles with similar quotes on different news sources using Google search.
     Returns a list of URLs.
     """
-    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf -site:bbc.com/news/live'
+    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf -site:bbc.com/news/live -site:bbc.com/news/*/'
     matching_quote_url=[]
     domains=[
         'www.foxnews.com', 'www.cnn.com', 'www.bbc.com',
-        'www.breitbart.com', 'www.apnews.com', 'www.washingtonpost.com'
+        'www.breitbart.com', 'apnews.com', 'www.washingtonpost.com'
     ]
     for domain in domains:
         for url in search(quote + remove_vids, domains=[domain], tbs="qdr:m", stop=2, pause=10):
@@ -71,7 +71,7 @@ def text_from_Google_url(Google_urls):
     cnn_url_regex = re.compile('.*www.cnn.com.*')
     bbc_url_regex = re.compile('.*www.bbc.com.*')
     bb_url_regex = re.compile('.*www.breitbart.com.*')
-    ap_url_regex = re.compile('.*www.apnews.com.*')
+    ap_url_regex = re.compile('.*apnews.com.*')
     wp_url_regex = re.compile('.*www.washingtonpost.com.*')
     
     fox_article=[]
@@ -229,12 +229,12 @@ def main(og_source, topic, start_time, end_time):
 
                 if google_quote_len > 3:
                     sim = metrics.JaccardSimilarity(quote, google_quote)
-                    if sim >= 0.25:
+                    if sim >= 0.2:
                         if (og_source, source) not in similarity_result.keys():
                             similarity_result[(og_source, source)] = [sim]
                         else:
                             similarity_result[(og_source, source)].append(sim)
-                    if sim >= 0.7:
+                    if sim >= 0.25:
                         cluster_dict[quote].append([source, google_quote])
     return similarity_result, cluster_dict
 
