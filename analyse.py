@@ -241,7 +241,7 @@ def main(og_source, topic, start_time, end_time):
             for quote1 in quote_dictionary[source1]:
                 for quote2 in quote_dictionary[source2]:
                     score += metrics.JaccardSimilarity(quote1, quote2)
-            score /= len(quote_dictionary[source1]) + len(quote_dictionary[source2])
+            score /= max(len(quote_dictionary[source1]) * len(quote_dictionary[source2]), 1)
             heatmap_dict[(source1, source2)] = score
             heatmap_dict[(source2, source1)] = score
     
@@ -249,6 +249,7 @@ def main(og_source, topic, start_time, end_time):
 
 
 if __name__ == "__main__":
-    sim_results, heatmap_dict = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
+    sim_results, heatmap_dict = main('fox-news', 'trump AND impeach', '2019-11-01', '2019-11-15')
     print(sim_results)
     print(sim_results.keys())
+    print(heatmap_dict)
