@@ -119,12 +119,10 @@ def KMeansClusteringPlot(X, kmeans_model, kmeans_df):
 
 
 if __name__ == "__main__":
-    quote_dict = {'cnn': 'witch hunt', 'fox': 'donald trump says this is a witch hunt',
-                'bbc': 'donald trump is a crookity crook who should be impeached'}
-
-    kmeans_elbow = KMeansClusteringElbowCurve(quote_dict)
-
-    X, y, kmeans_model, kmeans_df = KMeansClustering(quote_dict)
-    print(kmeans_df)
-
-    kmeans_plot = KMeansClusteringPlot(X, y, kmeans_model, quote_dict)
+    quote_dict = {'cnn': ['witch hunt', 'trump', 'impeachment'],
+                  'fox': ['donald trump says this is a witch hunt', 'donald trump is a witch', 'impeach'],
+                  'bbc': ['weird', 'dude', 'garrett smells']}
+    X = QuoteWord2Vec(quote_dict)
+    KMeansClusteringElbowCurve(X)
+    kmeans_model, kmeans_df = KMeansClustering(X, quote_dict, clusters=6)
+    KMeansClusteringPlot(X, kmeans_model, kmeans_df)
