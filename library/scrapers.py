@@ -17,7 +17,7 @@ def get_article_breitbart(url):
         for para in content.find_all(["p", "h2", "blockquote"]):
             article += para.text + "\n"
     except Exception as e:
-        print("Error: Probably not the type of article we are looking for.")
+        print("Error: Probably not the type of breitbart article we are looking for.")
     
     return article
 
@@ -35,7 +35,7 @@ def get_article_bbc(url):
         for i in content.findAll('p'):
             article = article + ' ' +  i.text
     except Exception as e:
-        print("Error: Probably not the type of article we are looking for.")
+        print("Error: Probably not the type of bbc article we are looking for.")
     
     return article
 
@@ -53,7 +53,7 @@ def get_article_fox(url):
         for i in content.findAll('p'):
             article = article + ' ' + i.text
     except Exception as e:
-        print("Error: Probably not the type of article we are looking for.")
+        print("Error: Probably not the type of fox article we are looking for.")
     
     return article
 
@@ -72,7 +72,7 @@ def get_article_wp(url):
         for para in content.find_all(["p", "h3"]):
             article += para.text + "\n"
     except Exception as e:
-        print("Error: Probably not the type of article we are looking for.")
+        print("Error: Probably not the type of washington post article we are looking for.")
     
     return article
 
@@ -91,7 +91,7 @@ def get_article_ap(url):
         for i in content.findAll('p'):
             article = article + ' ' +  i.text
     except Exception as e:
-        print("Error: Probably not the type of article we are looking for.")
+        print("Error: Probably not the type of associated press article we are looking for.")
     
     return article
 
@@ -110,6 +110,6 @@ def get_article_cnn(url):
         for para in content:
             article += para.text + "\n"
     except Exception as e:
-        print("Error: Probably not the type of article we are looking for.")
+        print("Error: Probably not the type of cnn article we are looking for.")
     
     return article
