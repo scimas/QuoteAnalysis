@@ -142,9 +142,25 @@ def main(og_source, topic, start_time, end_time):
     news = news_api(og_source, topic, start_time, end_time)
     urls = get_Stories(news)
     # Extract text from articles
+    if og_source == 'fox':
+        scraper = scrapers.get_article_fox
+    elif og_source == 'bb':
+        scraper = scrapers.get_article_breitbart
+    elif og_source == 'cnn':
+        scraper = scrapers.get_article_cnn
+    elif og_source == 'bbc':
+        scraper = scrapers.get_article_bbc
+    elif og_source == 'wp':
+        scraper = scrapers.get_article_wp
+    elif og_source == 'ap':
+        scraper = scrapers.get_article_ap
+    else:
+        print("Unknown news source")
+        return {}
+    
     article_list = []
     for i in urls:
-        article_list.append(scrapers.get_article_fox(i))
+        article_list.append(scraper(i))
 
     # Extract quotes from articles
     quotes = []
@@ -194,7 +210,7 @@ def main(og_source, topic, start_time, end_time):
     for quote in quotes_list:
         for source in sources:
             for dictionary_quotes_clust in dictionary_quotes[source]:
-                # filiter dictionary_quotes. 60% length match without stop_words
+                # filter dictionary_quotes to contain at least 3 non-stopwords
                 for google_quote in dictionary_quotes_clust:
                     google_quote_len = 0
                     for google_token in tokenizer.tokenize(google_quote):
@@ -202,10 +218,12 @@ def main(og_source, topic, start_time, end_time):
                             google_quote_len += 1
 
                     if google_quote_len > 3:
-                        if (og_source, source) not in similarity_result.keys():
-                            similarity_result[(og_source, source)] = [metrics.JaccardSimilarity(quote, google_quote)]
-                        else:
-                            similarity_result[(og_source, source)].append(metrics.JaccardSimilarity(quote, google_quote))
+                        sim = metrics.JaccardSimilarity(quote, google_quote)
+                        if sim >= 0.1:
+                            if (og_source, source) not in similarity_result.keys():
+                                similarity_result[(og_source, source)] = [sim]
+                            else:
+                                similarity_result[(og_source, source)].append(sim)
     return similarity_result
 
 
