@@ -229,17 +229,17 @@ def main(og_source, topic, start_time, end_time):
 
                 if google_quote_len > 3:
                     sim = metrics.JaccardSimilarity(quote, google_quote)
-                    if sim >= 0.1:
+                    if sim >= 0.25:
                         if (og_source, source) not in similarity_result.keys():
                             similarity_result[(og_source, source)] = [sim]
                         else:
                             similarity_result[(og_source, source)].append(sim)
                     if sim >= 0.7:
                         cluster_dict[quote].append([source, google_quote])
-    return similarity_result
+    return similarity_result, cluster_dict
 
 
 if __name__ == "__main__":
-    results = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
-    print(results)
-    print(results.keys())
+    sim_results, cluster_dict = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
+    print(sim_results)
+    print(sim_results.keys())
