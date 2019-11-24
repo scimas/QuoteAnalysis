@@ -14,6 +14,9 @@ from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, TreebankWordTokenizer
 from numpy.linalg import norm
 
+import matplotlib
+import matplotlib.pyplot as plt
+
 
 def news_api(source, query, from_, to_):
     """
@@ -48,7 +51,7 @@ def Google_quote(quote):
     Search for articles with similar quotes on different news sources using Google search.
     Returns a list of URLs.
     """
-    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf -site:bbc.com/news/live -site:bbc.com/news/*/'
+    remove_vids = ' -site:cnn.com/video -site:cnn.com/videos -site:cnn.com/shows -site:foxnews.com/shows -site:breitbart.com/tag -site:apnews.com/apf -site:bbc.com/news/live'
     matching_quote_url=[]
     domains=[
         'www.foxnews.com', 'www.cnn.com', 'www.bbc.com',
@@ -235,20 +238,58 @@ def main(og_source, topic, start_time, end_time):
     
     heatmap_dict = {}
     for i, source1 in enumerate(sources):
-        heatmap_dict[(source1, source1)] = 1
+        heatmap_dict[(source1, source1)] = 0
         for source2 in sources[i+1:]:
+        #for source2 in sources:
             score = 0
             for quote1 in quote_dictionary[source1]:
                 for quote2 in quote_dictionary[source2]:
                     score += metrics.JaccardSimilarity(quote1, quote2)
-            score /= len(quote_dictionary[source1]) + len(quote_dictionary[source2])
+            score /= max(len(quote_dictionary[source1]) * len(quote_dictionary[source2]),1)
             heatmap_dict[(source1, source2)] = score
             heatmap_dict[(source2, source1)] = score
+    MAX = max(heatmap_dict.values())*1.1
+    for source1 in (sources):
+
+        heatmap_dict[(source1, source1)] = MAX
     
     return similarity_result, heatmap_dict
+
+def heat_map(heatmap_dict):
+    sources = ['fox', 'bb', 'cnn', 'bbc', 'wp', 'ap']
+    harvest = np.array([[heatmap_dict[(i,j)] for i in sources] for j in sources])
+    fig, ax = plt.subplots()
+    im = ax.imshow(harvest, cmap='YlOrRd')
+
+    # Create colorbar
+    cbar = ax.figure.colorbar(im, ax=ax )
+    #cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(len(sources)))
+    ax.set_yticks(np.arange(len(sources)))
+    # ... and label them with the respective list entries
+    ax.set_xticklabels(sources,fontsize =15)
+    ax.set_yticklabels(sources,fontsize =15)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+             rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    # for i in range(len(sources)):
+    #     for j in range(len(sources)):
+    #         text = ax.text(j, i, harvest[i, j],
+    #                        ha="center", va="center", color="w")
+
+    ax.set_title("Jaccard Similarity Comparison",fontsize=15)
+    fig.tight_layout()
+    plt.show()
+
 
 
 if __name__ == "__main__":
     sim_results, heatmap_dict = main('fox-news', 'trump AND impeach', '2019-10-31', '2019-11-02')
     print(sim_results)
     print(sim_results.keys())
+    heat_map(heatmap_dict)
