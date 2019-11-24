@@ -249,12 +249,12 @@ def main(og_source, topic, start_time, end_time):
 
 
 if __name__ == "__main__":
-    sim_results, heatmap_dict, quote_dict = main('fox-news', 'trump AND impeach', '2019-11-15', '2019-11-18')
-    print(sim_results)
+    sim_results, heatmap_dict, quote_dict = main('fox-news', 'trump AND impeach', '2019-11-01', '2019-11-05')
     print(sim_results.keys())
+    print()
     print(heatmap_dict)
     
     vecs = metrics.QuoteWord2Vec(quote_dict)
     metrics.KMeansClusteringElbowCurve(vecs)
-    kmeans_model, kmeans_df = metrics.KMeansClustering(vecs, quote_dict)
+    kmeans_model, kmeans_df = metrics.KMeansClustering(vecs, quote_dict, clusters=5)
     metrics.KMeansClusteringPlot(vecs, kmeans_model, kmeans_df)
