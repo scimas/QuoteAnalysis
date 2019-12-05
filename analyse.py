@@ -288,7 +288,7 @@ def heat_map(heatmap_dict):
 
 
 if __name__ == "__main__":
-    sim_results, heatmap_dict, quote_dict = main('fox-news', 'trump AND impeach', '2019-11-01', '2019-11-05')
+    sim_results, heatmap_dict, quote_dict = main('fox-news', 'trump AND impeach', '2019-11-16', '2019-11-21')
     print(sim_results.keys())
     print()
     print(heatmap_dict)
