@@ -1,6 +1,6 @@
 # Quote Analysis
 
-Analysis of political figures' quote representation in news media.
+Analysis of Mixed Quote Representation in News Sources
 
 ## Installation
 1) To run the code included in this repository, create and activate a Python virtual environment.
@@ -20,3 +20,4 @@ pip3 install -r requirements.txt
    Using conda:
 
    `conda install -c conda-forge rise`
+
